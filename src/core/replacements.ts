@@ -14,7 +14,9 @@ export const applyReplacements = (text: string, replacements: Record<string, str
 
   let result = text;
   for (const key of keys) {
-    const pattern = new RegExp(`\\b${escapeRegExp(key)}\\b`, "gi");
+    // \b after '>' fails for non-ASCII (e.g. Chinese chars are non-word in JS),
+    // so use (\b | non-alphanumeric | end-of-string) as the boundary.
+    const pattern = new RegExp(`\\b${escapeRegExp(key)}(?=\\b|[^a-zA-Z0-9]|$)`, "gi");
     result = result.replace(pattern, replacements[key] ?? "");
   }
   return result;

@@ -8,7 +8,10 @@ import type { SttProvider } from "./types";
 export const createOpenAiCompatibleProvider = (config: OpenAiCompatibleProviderConfig): SttProvider => ({
   id: "openai-compatible",
   async transcribe(input) {
-    const needsAuth = endpointRequiresAuth(config.endpoint);
+    // Also send Bearer when an API key is configured, so authenticated
+    // localhost servers (llama-swap apiKeys) work. Local-only endpoints
+    // without a key still omit auth as before.
+    const needsAuth = endpointRequiresAuth(config.endpoint) || Boolean(config.apiKey);
     const payload = await postMultipartTranscription({
       endpoint: config.endpoint,
       apiKey: config.apiKey,
